@@ -37,18 +37,17 @@ export async function loginAction(formData: FormData) {
 
   if (!user) redirect("/login?ralat=Sesi+tidak+dapat+disahkan");
 
-  const { data: profile } = await supabase
-    .from("users")
-    .select("role,status")
-    .eq("id", user.id)
-    .single();
+  const [{ data: profile }, { data: roleRow }] = await Promise.all([
+    supabase.from("profiles").select("status").eq("id", user.id).single(),
+    supabase.from("user_roles").select("role").eq("user_id", user.id).limit(1).maybeSingle(),
+  ]);
 
-  if (!profile || profile.status !== "aktif") {
+  if (!profile || profile.status !== "aktif" || !roleRow) {
     await supabase.auth.signOut();
     redirect("/login?ralat=Akaun+belum+aktif+atau+telah+digantung");
   }
 
-  redirect(portalPathForRole(profile.role as UserRole));
+  redirect(portalPathForRole(roleRow.role as UserRole));
 }
 
 export async function signOutAction() {
