@@ -9,16 +9,32 @@ const geist = Geist({
 
 export const metadata: Metadata = {
   title: {
-    default: "Portal Madrasah",
-    template: "%s | Portal Madrasah",
+    default: "Madrasah Hub",
+    template: "%s | Madrasah Hub",
   },
-  description: "Sistem pengurusan sekolah madrasah dan portal ibu bapa.",
+  description: "Sistem pengurusan madrasah untuk admin, guru dan ibu bapa.",
+  applicationName: "Madrasah Hub",
+  manifest: "/manifest.webmanifest",
+  icons: {
+    icon: "/madrasah-hub-logo.svg",
+    shortcut: "/madrasah-hub-logo.svg",
+    apple: "/madrasah-hub-logo.svg",
+  },
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "black-translucent",
+    title: "Madrasah Hub",
+  },
+  formatDetection: {
+    telephone: false,
+  },
 };
 
 export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
-  themeColor: "#167D55",
+  viewportFit: "cover",
+  themeColor: "#064E3B",
 };
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
