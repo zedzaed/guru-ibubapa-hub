@@ -1,4 +1,4 @@
-import { BarChart3, CalendarDays, LayoutDashboard, Megaphone, School, Users, WalletCards } from "lucide-react";
+import { BarChart3, CalendarDays, LayoutDashboard, Megaphone, School, UserCog, Users, WalletCards } from "lucide-react";
 import { PortalShell } from "@/components/portal/portal-shell";
 import { requireRole } from "@/lib/auth/require-role";
 
@@ -11,6 +11,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
       userName={profile.nama}
       navItems={[
         { href: "/admin", label: "Dashboard", icon: LayoutDashboard },
+        { href: "/admin/pengguna", label: "Pengguna", icon: UserCog },
         { href: "/admin/pelajar", label: "Pelajar & Penjaga", icon: Users },
         { href: "/admin/kelas", label: "Kelas & Guru", icon: School },
         { href: "/admin/yuran", label: "Yuran & Invois", icon: WalletCards },
