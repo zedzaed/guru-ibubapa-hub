@@ -1,0 +1,50 @@
+@import "tailwindcss";
+
+@theme inline {
+  --font-sans: "Geist", "Geist Fallback", ui-sans-serif, system-ui, sans-serif;
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-border: var(--border);
+  --color-ring: var(--ring);
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+}
+
+:root {
+  --background: oklch(0.985 0.006 160);
+  --foreground: oklch(0.22 0.025 165);
+  --card: oklch(1 0 0);
+  --card-foreground: oklch(0.22 0.025 165);
+  --primary: oklch(0.46 0.12 160);
+  --primary-foreground: oklch(0.99 0 0);
+  --muted: oklch(0.95 0.015 155);
+  --muted-foreground: oklch(0.48 0.025 160);
+  --border: oklch(0.89 0.018 155);
+  --ring: oklch(0.55 0.13 160);
+  --radius: 0.875rem;
+}
+
+* {
+  border-color: var(--border);
+}
+
+body {
+  min-height: 100vh;
+  background: var(--background);
+  color: var(--foreground);
+}
+
+button,
+a,
+input,
+select {
+  -webkit-tap-highlight-color: transparent;
+}
