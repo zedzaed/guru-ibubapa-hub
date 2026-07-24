@@ -10,12 +10,15 @@ export const getCurrentProfile = cache(async (): Promise<UserProfile | null> => 
 
   if (!user) return null;
 
-  const { data, error } = await supabase
-    .from("users")
-    .select("id,nama,email,phone,role,status")
-    .eq("id", user.id)
-    .single();
+  const [{ data: profile, error: profileError }, { data: roleRow, error: roleError }] = await Promise.all([
+    supabase.from("profiles").select("id,nama,email,phone,status").eq("id", user.id).single(),
+    supabase.from("user_roles").select("role").eq("user_id", user.id).limit(1).maybeSingle(),
+  ]);
 
-  if (error || !data) return null;
-  return data as UserProfile;
+  if (profileError || roleError || !profile || !roleRow) return null;
+
+  return {
+    ...profile,
+    role: roleRow.role,
+  } as UserProfile;
 });
