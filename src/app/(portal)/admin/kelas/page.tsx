@@ -14,11 +14,15 @@ type ClassRow = { id: string; nama_kelas: string; tingkatan: string; guru_id: st
 export default async function ClassesPage({ searchParams }: { searchParams: Params }) {
   const params = await searchParams;
   const supabase = await createClient();
-  const [{ data: classesData, error }, { data: teachers }, { data: students }] = await Promise.all([
-    supabase.from("classes").select("id,nama_kelas,tingkatan,guru_id,tahun,guru:users!classes_guru_id_fkey(id,nama)").order("tahun", { ascending: false }).order("nama_kelas"),
-    supabase.from("users").select("id,nama").eq("role", "guru").eq("status", "aktif").order("nama"),
+  const [{ data: classesData, error }, { data: teacherRoles }, { data: students }] = await Promise.all([
+    supabase.from("classes").select("id,nama_kelas,tingkatan,guru_id,tahun,guru:profiles!classes_guru_id_fkey(id,nama)").order("tahun", { ascending: false }).order("nama_kelas"),
+    supabase.from("user_roles").select("user_id").eq("role", "guru"),
     supabase.from("students").select("id,kelas_id").eq("status", "aktif"),
   ]);
+  const teacherIds = (teacherRoles ?? []).map((item) => item.user_id);
+  const { data: teachers } = teacherIds.length
+    ? await supabase.from("profiles").select("id,nama").in("id", teacherIds).eq("status", "aktif").order("nama")
+    : { data: [] };
   if (error) throw new Error(error.message);
   const classes = (classesData ?? []) as unknown as ClassRow[];
   const counts = new Map<string, number>();
