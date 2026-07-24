@@ -15,10 +15,10 @@ const modules: Record<string, { title: string; phase: string; description: strin
 export default async function ParentModulePage({ params }: { params: Promise<{ slug: string[] }> }) {
   const { slug } = await params;
   const key = slug[0] ?? "modul";
-  const module = modules[key] ?? {
+  const moduleInfo = modules[key] ?? {
     title: "Modul Ibu Bapa",
     phase: "Fasa seterusnya",
     description: "Modul ini belum dimasukkan dalam skop Fasa 1.",
   };
-  return <PhasePlaceholder {...module} />;
+  return <PhasePlaceholder {...moduleInfo} />;
 }
