@@ -18,7 +18,7 @@ type Params = Promise<{ q?: string; kelas?: string; pelajar?: string; baru?: str
 type GuardianLink = {
   parent_id: string;
   hubungan: string;
-  users: { id: string; nama: string; email: string | null; phone: string | null } | null;
+  penjaga: { id: string; nama: string; email: string | null; phone: string | null } | null;
 };
 
 type StudentRow = StudentRecord & {
@@ -30,14 +30,18 @@ export default async function StudentsPage({ searchParams }: { searchParams: Par
   const params = await searchParams;
   const supabase = await createClient();
 
-  const [{ data: classesData }, { data: parentsData }] = await Promise.all([
+  const [{ data: classesData }, { data: parentRoles }] = await Promise.all([
     supabase.from("classes").select("id,nama_kelas,tingkatan,tahun,guru_id").order("tahun", { ascending: false }).order("nama_kelas"),
-    supabase.from("users").select("id,nama,email,phone").eq("role", "ibu_bapa").eq("status", "aktif").order("nama"),
+    supabase.from("user_roles").select("user_id").eq("role", "ibu_bapa"),
   ]);
+  const parentIds = (parentRoles ?? []).map((item) => item.user_id);
+  const { data: parentsData } = parentIds.length
+    ? await supabase.from("profiles").select("id,nama,email,phone").in("id", parentIds).eq("status", "aktif").order("nama")
+    : { data: [] };
 
   let query = supabase
     .from("students")
-    .select("id,nama,no_kp,tarikh_lahir,jantina,kelas_id,tahun_masuk,status,gambar_url,classes(id,nama_kelas,tingkatan,tahun),parents_students(parent_id,hubungan,users(id,nama,email,phone))")
+    .select("id,nama,no_kp,tarikh_lahir,jantina,kelas_id,tahun_masuk,status,gambar_url,classes(id,nama_kelas,tingkatan,tahun),parents_students(parent_id,hubungan,penjaga:profiles!parents_students_parent_id_fkey(id,nama,email,phone))")
     .order("nama");
   if (params.q?.trim()) query = query.ilike("nama", `%${params.q.trim()}%`);
   if (params.kelas) query = query.eq("kelas_id", params.kelas);
@@ -104,7 +108,7 @@ export default async function StudentsPage({ searchParams }: { searchParams: Par
                   <h2 className="font-bold">Penjaga dipautkan</h2>
                   {selected.parents_students?.length ? selected.parents_students.map((link) => (
                     <div key={link.parent_id} className="flex flex-wrap items-center justify-between gap-3 rounded-xl border p-3">
-                      <div><p className="font-semibold">{link.users?.nama ?? "Akaun penjaga"}</p><p className="text-xs text-muted-foreground">{link.hubungan} · {link.users?.phone ?? link.users?.email ?? "Tiada kontak"}</p></div>
+                      <div><p className="font-semibold">{link.penjaga?.nama ?? "Akaun penjaga"}</p><p className="text-xs text-muted-foreground">{link.hubungan} · {link.penjaga?.phone ?? link.penjaga?.email ?? "Tiada kontak"}</p></div>
                       <form action={unlinkGuardianAction}><input type="hidden" name="student_id" value={selected.id} /><input type="hidden" name="parent_id" value={link.parent_id} /><ConfirmSubmitButton type="submit" variant="ghost" size="sm" message="Buang kaitan penjaga ini?"><Trash2 className="size-4" /> Buang</ConfirmSubmitButton></form>
                     </div>
                   )) : <p className="rounded-xl border border-dashed p-4 text-sm text-muted-foreground">Belum ada penjaga dipautkan.</p>}
