@@ -25,7 +25,20 @@ jobs:
         run: npm install --silent --no-audit --no-fund
 
       - name: Typecheck
-        run: npm run typecheck -- --pretty false
+        id: typecheck
+        continue-on-error: true
+        run: npm run typecheck -- --pretty false > typecheck.log 2>&1
+
+      - name: Upload typecheck log
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: typecheck-log
+          path: typecheck.log
+
+      - name: Stop on typecheck failure
+        if: steps.typecheck.outcome == 'failure'
+        run: exit 1
 
       - name: Lint
         run: npm run lint
