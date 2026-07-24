@@ -45,30 +45,55 @@ export async function createUserAction(formData: FormData) {
     messageRedirect("ralat", "Konfigurasi Supabase tidak lengkap.");
   }
 
-  const signupClient = createSupabaseClient(url, key, {
-    auth: {
-      autoRefreshToken: false,
-      persistSession: false,
-      detectSessionInUrl: false,
-    },
-  });
+  const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+  let userId: string;
+  let databaseClient = await createClient();
 
-  const { data: signupData, error: signupError } = await signupClient.auth.signUp({
-    email,
-    password,
-    options: {
-      data: { nama, phone, role },
-    },
-  });
+  if (serviceRoleKey) {
+    const adminClient = createSupabaseClient(url, serviceRoleKey, {
+      auth: { autoRefreshToken: false, persistSession: false },
+    });
+    const { data, error } = await adminClient.auth.admin.createUser({
+      email,
+      password,
+      email_confirm: true,
+      user_metadata: { nama, phone, role },
+    });
 
-  if (signupError || !signupData.user) {
-    messageRedirect("ralat", signupError?.message ?? "Akaun Auth tidak berjaya diwujudkan.");
+    if (error || !data.user) {
+      messageRedirect("ralat", error?.message ?? "Akaun Auth tidak berjaya diwujudkan.");
+    }
+
+    userId = data.user.id;
+    databaseClient = adminClient;
+  } else {
+    // Klien berasingan memastikan pendaftaran pengguna tidak menukar sesi admin semasa.
+    const signupClient = createSupabaseClient(url, key, {
+      auth: {
+        autoRefreshToken: false,
+        persistSession: false,
+        detectSessionInUrl: false,
+      },
+    });
+
+    const { data, error } = await signupClient.auth.signUp({
+      email,
+      password,
+      options: { data: { nama, phone, role } },
+    });
+
+    if (error || !data.user) {
+      messageRedirect("ralat", error?.message ?? "Akaun Auth tidak berjaya diwujudkan.");
+    }
+
+    if (data.user.identities && data.user.identities.length === 0) {
+      messageRedirect("ralat", "E-mel ini sudah didaftarkan dalam Supabase Auth.");
+    }
+
+    userId = data.user.id;
   }
 
-  const supabase = await createClient();
-  const userId = signupData.user.id;
-
-  const { error: profileError } = await supabase.from("profiles").upsert(
+  const { error: profileError } = await databaseClient.from("profiles").upsert(
     {
       id: userId,
       nama,
@@ -83,14 +108,13 @@ export async function createUserAction(formData: FormData) {
     messageRedirect("ralat", `Akaun Auth dicipta tetapi profil gagal disimpan: ${profileError.message}`);
   }
 
-  const { error: roleError } = await supabase.from("user_roles").upsert(
-    {
-      user_id: userId,
-      role,
-    },
-    { onConflict: "user_id,role" },
-  );
+  // Trigger Supabase meletakkan role awal ibu_bapa. Padam dahulu supaya setiap akaun hanya ada satu role.
+  const { error: clearRoleError } = await databaseClient.from("user_roles").delete().eq("user_id", userId);
+  if (clearRoleError) {
+    messageRedirect("ralat", `Profil dicipta tetapi role lama gagal dibersihkan: ${clearRoleError.message}`);
+  }
 
+  const { error: roleError } = await databaseClient.from("user_roles").insert({ user_id: userId, role });
   if (roleError) {
     messageRedirect("ralat", `Profil dicipta tetapi peranan gagal ditetapkan: ${roleError.message}`);
   }
