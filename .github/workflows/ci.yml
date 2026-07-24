@@ -22,10 +22,10 @@ jobs:
           node-version: 22
 
       - name: Install dependencies
-        run: npm install
+        run: npm install --silent --no-audit --no-fund
 
       - name: Typecheck
-        run: npm run typecheck
+        run: npm run typecheck -- --pretty false
 
       - name: Lint
         run: npm run lint
