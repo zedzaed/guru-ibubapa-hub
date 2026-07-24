@@ -167,7 +167,7 @@ export default async function UserManagementPage({ searchParams }: PageProps) {
                           <div className="flex flex-wrap items-center gap-2">
                             <p className="truncate font-bold text-slate-900">{user.nama}</p>
                             <Badge className={meta.className}>{meta.label}</Badge>
-                            {isCurrent ? <Badge variant="outline">Anda</Badge> : null}
+                            {isCurrent ? <Badge className="border border-slate-200 bg-white text-slate-700">Anda</Badge> : null}
                           </div>
                           <p className="mt-1 truncate text-sm text-slate-600">{user.email ?? "Tiada e-mel"}</p>
                           {user.phone ? <p className="mt-0.5 text-xs text-slate-500">{user.phone}</p> : null}
