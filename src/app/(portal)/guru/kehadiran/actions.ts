@@ -20,13 +20,23 @@ export async function saveAttendanceAction(input: { classId: string; date: strin
   if (input.records.some((record) => !record.studentId || !validStatuses.has(record.status))) return { success: false, message: "Rekod kehadiran tidak sah." };
 
   const supabase = await createClient();
-  const { data, error } = await supabase.rpc("save_class_attendance", {
-    p_class_id: input.classId,
-    p_tarikh: input.date,
-    p_records: input.records.map((record) => ({ student_id: record.studentId, status: record.status, sebab: record.sebab || null })),
-  });
+  const { data: authData } = await supabase.auth.getUser();
+  if (!authData.user) return { success: false, message: "Sesi pengguna tidak sah." };
+
+  const payload = input.records.map((record) => ({
+    student_id: record.studentId,
+    tarikh: input.date,
+    status: record.status,
+    sebab: record.sebab || null,
+    direkod_oleh: authData.user.id,
+  }));
+
+  const { error } = await supabase
+    .from("attendance")
+    .upsert(payload, { onConflict: "student_id,tarikh" });
+
   if (error) return { success: false, message: error.message };
   revalidatePath("/guru/kehadiran");
   revalidatePath("/ibu-bapa/kehadiran");
-  return { success: true, message: `${Number(data ?? input.records.length)} rekod berjaya disimpan.` };
+  return { success: true, message: `${payload.length} rekod berjaya disimpan.` };
 }
