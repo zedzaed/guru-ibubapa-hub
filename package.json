@@ -7,7 +7,7 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint . --max-warnings=0",
+    "lint": "eslint app components lib scripts middleware.ts --max-warnings=0",
     "typecheck": "tsc --noEmit",
     "seed:demo": "tsx scripts/seed-demo.ts"
   },
