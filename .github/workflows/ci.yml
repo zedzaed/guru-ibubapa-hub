@@ -29,19 +29,26 @@ jobs:
         continue-on-error: true
         run: npm run typecheck -- --pretty false > typecheck.log 2>&1
 
-      - name: Upload typecheck log
+      - name: Lint
+        id: lint
+        continue-on-error: true
+        run: npm run lint > lint.log 2>&1
+
+      - name: Build
+        id: build
+        continue-on-error: true
+        run: npm run build > build.log 2>&1
+
+      - name: Upload validation logs
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: typecheck-log
-          path: typecheck.log
+          name: validation-logs
+          path: |
+            typecheck.log
+            lint.log
+            build.log
 
-      - name: Stop on typecheck failure
-        if: steps.typecheck.outcome == 'failure'
+      - name: Stop on validation failure
+        if: steps.typecheck.outcome == 'failure' || steps.lint.outcome == 'failure' || steps.build.outcome == 'failure'
         run: exit 1
-
-      - name: Lint
-        run: npm run lint
-
-      - name: Build
-        run: npm run build
