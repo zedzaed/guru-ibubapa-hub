@@ -23,7 +23,7 @@ NEXT_PUBLIC_SUPABASE_URL=https://PROJECT.supabase.co
 NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=sb_publishable_xxx
 ```
 
-Aplikasi juga menerima nama lama `VITE_SUPABASE_URL` dan `VITE_SUPABASE_PUBLISHABLE_KEY` untuk memudahkan peralihan projek lama ke Next.js.
+Selepas menambah atau mengubah environment variables di Vercel, jalankan deployment baharu supaya nilainya digunakan oleh build production.
 
 ## Supabase
 
