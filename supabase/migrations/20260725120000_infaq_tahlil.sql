@@ -1,6 +1,19 @@
 -- Fasa 3: Pengurusan Infaq & Tahlil
 create extension if not exists pgcrypto;
 
+-- Keserasian dengan skema role Lovable semasa.
+create or replace function public.is_admin()
+returns boolean
+language sql
+stable
+security definer
+set search_path = public
+as $$
+  select public.has_role(auth.uid(), 'admin'::public.app_role);
+$$;
+
+grant execute on function public.is_admin() to authenticated;
+
 create table if not exists public.infaq_settings (
   id smallint primary key default 1 check (id = 1),
   organization_name text not null default 'Madrasah Hub',
