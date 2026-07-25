@@ -1,10 +1,10 @@
 import type { Metadata } from "next";
 import { BookOpenCheck, LockKeyhole, ShieldCheck } from "lucide-react";
 import { loginAction } from "./actions";
-import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { SubmitButton } from "@/components/shared/submit-button";
 
 export const metadata: Metadata = { title: "Log Masuk" };
 
@@ -49,10 +49,10 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
                 <Label htmlFor="password">Kata laluan</Label>
                 <Input id="password" name="password" type="password" autoComplete="current-password" required />
               </div>
-              <Button type="submit" className="w-full">
+              <SubmitButton className="w-full" pendingLabel="Sedang log masuk…">
                 <LockKeyhole className="size-4" />
                 Log Masuk
-              </Button>
+              </SubmitButton>
             </form>
 
             <div className="mt-5 flex items-start gap-2 rounded-xl bg-muted p-3 text-xs leading-5 text-muted-foreground">
