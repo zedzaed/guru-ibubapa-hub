@@ -9,9 +9,7 @@ import {
   FileCheck2,
   HeartHandshake,
   MailCheck,
-  QrCode,
   ReceiptText,
-  RotateCcw,
   Settings2,
   Upload,
   UserPlus,
@@ -245,10 +243,7 @@ export default async function AdminInfaqPage({ searchParams }: PageProps) {
                       {record.receipt_no && record.email ? (
                         <div className="border-t pt-3">
                           <p className="mb-2 text-xs text-muted-foreground">E-mel: {record.email_status === "dihantar" ? "Sudah dihantar" : record.email_error ?? "Belum dihantar"}</p>
-                          <form action={resendInfaqReceiptAction}>
-                            <input type="hidden" name="id" value={record.id} />
-                            <SubmitButton type="submit" size="sm" variant="outline" className="w-full" pendingLabel="Menghantar…"><MailCheck className="size-4" /> Hantar Semula Resit</SubmitButton>
-                          </form>
+                          <SubmitButton formAction={resendInfaqReceiptAction} size="sm" variant="outline" className="w-full" pendingLabel="Menghantar…"><MailCheck className="size-4" /> Hantar Semula Resit</SubmitButton>
                         </div>
                       ) : null}
                     </form>
